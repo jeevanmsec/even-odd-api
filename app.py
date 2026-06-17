@@ -1,26 +1,40 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
 
 app = Flask(__name__)
 
-def is_even(number):
-    return number % 2 == 0
-
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return jsonify({"message": "Even/Odd Checker API"})
+    result = ""
 
-@app.route("/check")
-def check():
-    try:
-        number = int(request.args.get("number"))
+    if request.method == "POST":
+        try:
+            number = int(request.form["number"])
 
-        return jsonify({
-            "number": number,
-            "result": "Even" if is_even(number) else "Odd"
-        })
+            if number % 2 == 0:
+                result = f"{number} is Even"
+            else:
+                result = f"{number} is Odd"
 
-    except:
-        return jsonify({"error": "Enter a valid number"}), 400
+        except ValueError:
+            result = "Please enter a valid number"
+
+    return f"""
+    <html>
+    <head>
+        <title>Even or Odd Checker</title>
+    </head>
+    <body style="font-family: Arial; text-align:center; margin-top:50px;">
+        <h1>Even or Odd Checker</h1>
+
+        <form method="POST">
+            <input type="number" name="number" placeholder="Enter a number" required>
+            <button type="submit">Check</button>
+        </form>
+
+        <h2>{result}</h2>
+    </body>
+    </html>
+    """
 
 if __name__ == "__main__":
     app.run()
